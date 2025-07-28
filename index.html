@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentorship/Volunteer Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f6f8;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 16px;
+      padding: 48px 32px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .card h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .card a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      background: #1f2937;
+      color: #ffffff;
+      font-weight: 600;
+      padding: 14px 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+      transition: all 0.25s ease;
+    }
+
+    .card a:hover {
+      background: #ffffff;
+      color: #1f2937;
+      box-shadow: 0 6px 16px rgba(31, 41, 55, 0.15);
+      transform: translateY(-2px);
+      border: 1px solid #1f2937;
+    }
+
+    .card a svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 500px) {
+      .card {
+        padding: 36px 20px;
+      }
+
+      .card h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Join the Movement</h1>
+    <p>Select how you'd like to contribute</p>
+
+    <a href="Mentor Form/index.html">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 14l9-5-9-5-9 5 9 5z" />
+        <path d="M12 14l6.16-3.422a12.042 12.042 0 01.84 4.832L12 19l-7-3.59c.04-1.69.3-3.301.84-4.832L12 14z" />
+      </svg>
+      Mentor Application
+    </a>
+
+    <a href="Mentee Form/index.html">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 14l9-5-9-5-9 5 9 5z" />
+        <path d="M12 14v7" />
+        <path d="M12 21l-7-4v-5l7 4" />
+        <path d="M12 21l7-4v-5l-7 4" />
+      </svg>
+      Mentee Application
+    </a>
+
+    <a href="Volunteer Application/index.html">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 11c0 0-1.5-2-4-2s-4 2-4 2v6h8v-6zM20 11c0 0-1.5-2-4-2s-4 2-4 2v6h8v-6z" />
+        <path d="M12 4v4" />
+        <path d="M8 4v4" />
+        <path d="M16 4v4" />
+      </svg>
+      Volunteer Application
+    </a>
+  </div>
+</body>
+</html>
