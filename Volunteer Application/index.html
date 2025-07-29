@@ -23,7 +23,7 @@
   <li>References</li>
 </ul>
 
-<form name="frm" method="post" action="https://truebooks.teamdesk.net/secure/gateway.aspx?action=WebToRecord&amp;app=93348&amp;table=1558277">
+<form name="frm"  method="post" action="https://truebooks.teamdesk.net/secure/gateway.aspx?action=WebToRecord&amp;app=93348&amp;table=1558277">
   <input type="hidden" name="retURL" value="https://truebooks.teamdesk.net">
 
   
@@ -72,10 +72,10 @@
         <div style="margin-top: 20px;">
           <label style="color: #222222; margin-bottom: 8px; display: block; font-weight: bold;">Activity Level</label>
           <ul class="fs-checklist v3-checklist">
-            <li><label><input type="checkbox" name="f_67289324" value="Limited Activity (requires mostly sitting)"> Limited Activity (requires mostly sitting)</label></li>
-            <li><label><input type="checkbox" name="f_67289324" value="Moderately Active (some walking)"> Moderately Active (some walking)</label></li>
-            <li><label><input type="checkbox" name="f_67289324" value="Very Active (capable of walking distances and pushing wheelchairs)"> Very Active (capable of walking distances and pushing wheelchairs)</label></li>
-            <li><label><input type="checkbox" name="f_67289324" value="Other"> Other</label></li>
+            <li><label><input type="radio" name="f_67289324" value="Limited Activity (requires mostly sitting)"> Limited Activity (requires mostly sitting)</label></li>
+            <li><label><input type="radio" name="f_67289324" value="Moderately Active (some walking)"> Moderately Active (some walking)</label></li>
+            <li><label><input type="radio" name="f_67289324" value="Very Active (capable of walking distances and pushing wheelchairs)"> Very Active (capable of walking distances and pushing wheelchairs)</label></li>
+            <li><label><input type="radio" name="f_67289324" value="Other"> Other</label></li>
           </ul>
         </div>
         <div style="margin-top: 20px;">
@@ -228,7 +228,7 @@
   
   <div style="margin-top: 20px;">
     <button type="button" onclick="prevStep()">PREVIOUS</button>
-    <button type="button" onclick="nextStep()">NEXT</button>
+    <button type="button" id="nextBtn" onclick="nextStep()">NEXT</button>
   </div>
 </form>
 
