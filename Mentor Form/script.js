@@ -14,7 +14,44 @@ document.addEventListener("DOMContentLoaded", function () {
     progressItems.forEach((p, i) => p.classList.toggle('active', i <= step));
   }
 
+  // Validation for current step's required fields including radio groups
+  function validateCurrentStep() {
+    const currentStep = steps[current];
+    const requiredFields = currentStep.querySelectorAll('input[required], textarea[required]');
+    for (const field of requiredFields) {
+      if (field.type === 'checkbox') {
+        if (!field.checked) {
+          alert("Please complete all required fields before proceeding.");
+          field.focus();
+          return false;
+        }
+      } else if (!field.value.trim()) {
+        alert("Please fill in all required fields before proceeding.");
+        field.focus();
+        return false;
+      }
+    }
+
+    // Check required radio groups explicitly
+    const requiredRadioGroups = [
+      'f_67343722', // Primary Shift
+      'f_67343723', // Years of Clinical Experience
+    ];
+
+    for (const groupName of requiredRadioGroups) {
+      const radios = currentStep.querySelectorAll(`input[name="${groupName}"]`);
+      if (radios.length > 0 && !Array.from(radios).some(r => r.checked)) {
+        alert("Please complete all required selections before proceeding.");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   window.nextStep = function () {
+    if (!validateCurrentStep()) return;
+
     if (current < steps.length - 1) {
       current++;
       showStep(current);
