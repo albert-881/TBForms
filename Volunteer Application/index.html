@@ -33,44 +33,44 @@
       <td colspan="8">
         <div class="input-group">
           <input id="f_67289235_ID0ER" name="f_67289235" type="text" maxlength="40" required>
-          <label for="f_67289235_ID0ER">Applicant Name</label>
+          <label for="f_67289235_ID0ER">Applicant Name*</label>
         </div>
         <div class="input-group address">
           <div class="address-field">
             <input id="f_67289236_ID0E6" name="f_67289236" type="text" maxlength="40" required>
-            <label for="f_67289236_ID0E6">Street Address</label>
+            <label for="f_67289236_ID0E6">Street Address*</label>
           </div>
         
           <div class="address-field">
             <input id="f_67361783_ID0ENB" name="f_67361783" type="text" maxlength="40" required>
-            <label for="f_67361783_ID0ENB">City</label>
+            <label for="f_67361783_ID0ENB">City*</label>
           </div>
         
           <div class="address-field">
             <input id="f_67361784_ID0E2B" name="f_67361784" type="text" maxlength="40" required>
-            <label for="f_67361784_ID0E2B">State</label>
+            <label for="f_67361784_ID0E2B">State*</label>
           </div>
         
           <div class="address-field">
             <input id="f_67361785_ID0EJC" name="f_67361785" type="text" maxlength="40" required>
-            <label for="f_67361785_ID0EJC">Zip Code</label>
+            <label for="f_67361785_ID0EJC">Zip Code*</label>
           </div>
         </div>
         
         <div class="input-group">
           <input id="f_67289237_ID0ENB" name="f_67289237" type="tel" maxlength="31" required>
-          <label for="f_67289237_ID0ENB">Phone Number</label>
+          <label for="f_67289237_ID0ENB">Phone Number*</label>
         </div>
         <div class="input-group">
           <input id="f_67289238_ID0E3B" name="f_67289238" type="email" maxlength="63" required>
-          <label for="f_67289238_ID0E3B">E-Mail</label>
+          <label for="f_67289238_ID0E3B">E-Mail*</label>
         </div>
         <div class="input-group">
           <input id="f_67289239_ID0ENC" name="f_67289239" type="date" maxlength="30" required>
-          <label for="f_67289239_ID0ENC">DOB</label>
+          <label for="f_67289239_ID0ENC">DOB*</label>
         </div>
         <div style="margin-top: 20px;">
-          <label style="color: #222222; margin-bottom: 8px; display: block; font-weight: bold;">Activity Level</label>
+          <label style="color: #222222; margin-bottom: 8px; display: block; font-weight: bold;">Activity Level*</label>
           <ul class="fs-checklist v3-checklist">
             <li><label><input type="radio" name="f_67289324" value="Limited Activity (requires mostly sitting)"> Limited Activity (requires mostly sitting)</label></li>
             <li><label><input type="radio" name="f_67289324" value="Moderately Active (some walking)"> Moderately Active (some walking)</label></li>
@@ -79,7 +79,7 @@
           </ul>
         </div>
         <div style="margin-top: 20px;">
-          <label style="color: #222222; margin-bottom: 8px; display: block; font-weight: bold;">Reliable Transportation</label>
+          <label style="color: #222222; margin-bottom: 8px; display: block; font-weight: bold;">Reliable Transportation*</label>
           <ul class="fs-checklist v3-checklist yesno">
             <li><label><input type="radio" name="f_67289327" value="Yes" checked> Yes</label></li>
             <li><label><input type="radio" name="f_67289327" value="No"> No</label></li>
@@ -87,7 +87,7 @@
         </div>
         <div class="input-group">
           <textarea name="f_67309273" placeholder=" " required></textarea>
-          <label>Have you ever been convicted, pled no contest, or had deferred prosecution? If yes, explain.</label>
+          <label>Have you ever been convicted, pled no contest, or had deferred prosecution? If yes, explain.*</label>
         </div>
         
         
@@ -229,7 +229,14 @@
   <div style="margin-top: 20px;">
     <button type="button" onclick="prevStep()">PREVIOUS</button>
     <button type="button" id="nextBtn" onclick="nextStep()">NEXT</button>
+    
+    <div id="next-disabled-message" style="margin-top: 10px; color: #b91c1c; font-size: 0.9rem; display: none;">
+      The NEXT button is disabled. Please fill out all required fields (*) and use the correct format (e.g. a valid email).
+    </div>
   </div>
+  
+  
+  
 </form>
 
 

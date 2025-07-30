@@ -326,6 +326,7 @@ content: none !important;
 display: none !important;
 }
 
+
 /* Responsive tweaks */
 @media (max-width: 600px) {
   form tr {

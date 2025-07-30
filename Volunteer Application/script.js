@@ -9,14 +9,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const teamdeskGuardianSignature = document.getElementById("f_67361926_ID0EYIAC");
   const dobInput = document.getElementById("f_67289239_ID0ENC");
 
-  // Multi-step form elements
   const steps = document.querySelectorAll('.step-section');
   const progressItems = document.querySelectorAll('.progressbar li');
   const nextBtn = document.getElementById('nextBtn');
   const prevBtn = document.querySelector('button[onclick="prevStep()"]');
+
   let currentStepIndex = 0;
 
-  // Phone formatting
   const phoneInputs = document.querySelectorAll('input[type="tel"]');
   phoneInputs.forEach((input) => {
     input.addEventListener("input", function (e) {
@@ -34,7 +33,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Show a specific step and update UI accordingly
   function showStep(index) {
     steps.forEach((step, i) => step.classList.toggle('active', i === index));
     progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
@@ -43,44 +41,54 @@ document.addEventListener("DOMContentLoaded", function () {
     updateButtons();
   }
 
-  // Validate all required fields in current step, enable/disable NEXT button
   function validateStepFields() {
     const currentStep = steps[currentStepIndex];
     const requiredFields = currentStep.querySelectorAll('[required]');
-    let allFilled = true;
-
+    let allValid = true;
+  
     requiredFields.forEach(field => {
-      if (field.type === 'checkbox' || field.type === 'radio') {
-        if (field.type === 'radio') {
-          const name = field.name;
-          const radios = currentStep.querySelectorAll(`input[name="${name}"]`);
-          const isAnyChecked = Array.from(radios).some(radio => radio.checked);
-          if (!isAnyChecked) allFilled = false;
-        } else if (!field.checked) {
-          allFilled = false;
+      if (field.type === 'email') {
+        const emailPattern = /^[^@]+@[^@]+\.[^@]+$/;
+        if (!emailPattern.test(field.value.trim())) {
+          allValid = false;
+        }
+      } else if (field.type === 'checkbox' && !field.checked) {
+        allValid = false;
+      } else if (field.type === 'radio') {
+        const group = currentStep.querySelectorAll(`input[name="${field.name}"]`);
+        const oneChecked = Array.from(group).some(f => f.checked);
+        if (!oneChecked) {
+          allValid = false;
         }
       } else if (!field.value.trim()) {
-        allFilled = false;
+        allValid = false;
       }
     });
-
-    nextBtn.disabled = !allFilled;
+  
+    nextBtn.disabled = !allValid;
+  
+    // Show/hide the message
+    const msg = document.getElementById("next-disabled-message");
+    if (msg) {
+      msg.style.display = allValid ? "none" : "block";
+    }
+  
+    return allValid;
   }
+  
 
-  // Update PREVIOUS button visibility and NEXT button text
   function updateButtons() {
     prevBtn.style.display = currentStepIndex === 0 ? 'none' : 'inline-block';
     nextBtn.textContent = currentStepIndex === steps.length - 1 ? 'Submit' : 'NEXT';
   }
 
-  // Next button handler
   window.nextStep = function () {
-    if (nextBtn.disabled) return; // prevent if validation fails
+    const valid = validateStepFields();
+    if (!valid) return;
 
     if (currentStepIndex < steps.length - 1) {
       showStep(currentStepIndex + 1);
     } else {
-      // On last step, check signature and submit or show modal
       if (!teamdeskSignature.value.trim()) {
         checkAgeAndShowModal();
       } else {
@@ -89,23 +97,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Previous button handler
   window.prevStep = function () {
     if (currentStepIndex > 0) {
       showStep(currentStepIndex - 1);
     }
   };
 
-  // Add event listeners to inputs in each step for real-time validation
   steps.forEach(step => {
     const inputs = step.querySelectorAll('input, textarea, select');
     inputs.forEach(input => {
-      input.addEventListener('input', validateStepFields);
-      input.addEventListener('change', validateStepFields);
+      input.addEventListener('input', () => {
+        validateStepFields();
+      });
+      input.addEventListener('change', () => {
+        validateStepFields();
+      });
     });
   });
 
-  // Form submit handler - if signature missing, prevent and show modal
   form.addEventListener("submit", function (e) {
     if (!teamdeskSignature.value.trim()) {
       e.preventDefault();
@@ -113,7 +122,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Show signature modal and check age to toggle guardian fields
   function checkAgeAndShowModal() {
     const dobValue = dobInput.value;
     if (!dobValue) {
@@ -138,7 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
     showSignatureModal();
   }
 
-  // Confirm signature and submit form via fetch
   window.confirmSignature = function () {
     if (typedSignature.value.trim() === "") {
       alert("Please type your signature.");
@@ -163,15 +170,14 @@ document.addEventListener("DOMContentLoaded", function () {
       body: formData,
       mode: "no-cors"
     })
-    .then(() => {
-      window.location.href = "thankyou.html";
-    })
-    .catch(() => {
-      alert("Error submitting the form. Please try again.");
-    });
+      .then(() => {
+        window.location.href = "thankyou.html";
+      })
+      .catch(() => {
+        alert("Error submitting the form. Please try again.");
+      });
   };
 
-  // Show the signature modal styling
   function showSignatureModal() {
     modal.style.display = "flex";
     modal.style.position = "fixed";
@@ -184,6 +190,5 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.alignItems = "center";
   }
 
-  // Initialize first step and buttons
   showStep(currentStepIndex);
 });
