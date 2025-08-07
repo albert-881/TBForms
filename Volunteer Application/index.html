@@ -254,11 +254,33 @@
   }
 
   function nextStep() {
-    if (current < steps.length - 1) {
-      current++;
-      showStep(current);
-    }
+  const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
+  const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
+
+  if (!stepIsValid) {
+    form.reportValidity();
+    return;
   }
+
+  // Signature step - validate CAPTCHA before calling confirm
+  if (currentStep === formSteps.length - 1) {
+    const captchaResponse = grecaptcha.getResponse();
+    if (!captchaResponse.length) {
+      alert("Please complete the CAPTCHA.");
+      return;
+    }
+
+    if (!teamdeskSignature.value.trim()) {
+      checkAgeAndShowModal(); // show signature modal
+    } else {
+      confirmSignature(); // final submission via fetch
+    }
+  } else {
+    currentStep++;
+    showStep(currentStep);
+  }
+}
+
 
   function prevStep() {
     if (current > 0) {

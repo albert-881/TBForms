@@ -115,22 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  form.addEventListener("submit", function (e) {
-    const captchaResponse = grecaptcha.getResponse();
-  
-    // If CAPTCHA not checked
-    if (captchaResponse.length === 0) {
-      e.preventDefault(); // prevent form submission
-      alert("Please complete the CAPTCHA.");
-      return;
-    }
-  
-    // If signature not filled
-    if (!teamdeskSignature.value.trim()) {
-      e.preventDefault(); // prevent form submission
-      checkAgeAndShowModal();
-    }
-  });
   
 
   function checkAgeAndShowModal() {
