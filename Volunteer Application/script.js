@@ -65,9 +65,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   
+    // 👇 Additional check: if it's the final step, require CAPTCHA to be solved
+    if (currentStepIndex === steps.length - 1) {
+      const captchaResponse = grecaptcha.getResponse();
+      if (!captchaResponse || captchaResponse.length === 0) {
+        allValid = false;
+      }
+    }
+  
     nextBtn.disabled = !allValid;
   
-    // Show/hide the message
     const msg = document.getElementById("next-disabled-message");
     if (msg) {
       msg.style.display = allValid ? "none" : "block";
