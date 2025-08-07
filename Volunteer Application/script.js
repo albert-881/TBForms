@@ -142,24 +142,39 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   window.confirmSignature = function () {
+    // ✅ Check CAPTCHA
+    const captchaResponse = grecaptcha.getResponse();
+    if (!captchaResponse || captchaResponse.length === 0) {
+      alert("Please complete the CAPTCHA.");
+      return;
+    }
+  
+    // ✅ Validate signature fields
     if (typedSignature.value.trim() === "") {
       alert("Please type your signature.");
       return;
     }
+  
     if (guardianSignature.style.display !== "none" && guardianSignature.value.trim() === "") {
       alert("Guardian signature is required for applicants under 18.");
       return;
     }
+  
     if (!acknowledgmentCheckbox.checked) {
       alert("You must acknowledge and agree to the terms.");
       return;
     }
+  
+    // ✅ Assign values
     teamdeskSignature.value = typedSignature.value.trim();
     teamdeskGuardianSignature.value = guardianSignature.value.trim();
+  
+    // ✅ Hide modal
     modal.style.display = "none";
-
+  
+    // ✅ Submit the form using fetch
     const formData = new FormData(form);
-
+  
     fetch(form.action, {
       method: "POST",
       body: formData,
@@ -172,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Error submitting the form. Please try again.");
       });
   };
+  
 
   function showSignatureModal() {
     modal.style.display = "flex";
