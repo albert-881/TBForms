@@ -200,6 +200,17 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.justifyContent = "center";
     modal.style.alignItems = "center";
   }
+  window.enableSubmitButton = function () {
+    if (currentStepIndex === steps.length - 1) {
+      nextBtn.disabled = false;
+    }
+  };
+
+  window.disableSubmitButton = function () {
+    if (currentStepIndex === steps.length - 1) {
+      nextBtn.disabled = true;
+    }
+  };
 
   showStep(currentStepIndex);
 });

@@ -221,14 +221,20 @@
       <input id="f_67361926_ID0EYIAC" name="f_67361926" type="text" maxlength="40" style="display:none;">
 </div>
     
-<div class="g-recaptcha" data-sitekey="6LcZkpwrAAAAAASAGdTMJo1OkMRlhhtC0o1RzrmP"></div>
+<div class="g-recaptcha"
+     data-sitekey="6LcZkpwrAAAAAASAGdTMJo1OkMRlhhtC0o1RzrmP"
+     data-callback="enableSubmitButton"
+     data-expired-callback="disableSubmitButton">
+</div>
+
   </div>
 
  
 
   <div style="margin-top: 20px;">
     <button type="button" onclick="prevStep()">PREVIOUS</button>
-    <button type="button" id="nextBtn" onclick="nextStep()">NEXT</button>
+    <button type="button" id="nextBtn" disabled onclick="nextStep()">NEXT</button>
+
     
     <div id="next-disabled-message" style="margin-top: 10px; color: #b91c1c; font-size: 0.9rem; display: none;">
       Please complete all required fields (*) and use valid formats (e.g., a valid email) to continue.
@@ -248,10 +254,20 @@
   const progressItems = document.querySelectorAll('.progressbar li');
   let current = 0;
 
-  function showStep(step) {
-    steps.forEach((s, i) => s.classList.toggle('active', i === step));
-    progressItems.forEach((p, i) => p.classList.toggle('active', i <= step));
+  function showStep(index) {
+  steps.forEach((step, i) => step.classList.toggle('active', i === index));
+  progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
+  currentStepIndex = index;
+  validateStepFields();
+  updateButtons();
+
+  // Disable button if we're on last step and CAPTCHA hasn't been solved yet
+  if (currentStepIndex === steps.length - 1) {
+    const captchaResponse = grecaptcha.getResponse();
+    nextBtn.disabled = !captchaResponse.length;
   }
+}
+
 
   function nextStep() {
   const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
