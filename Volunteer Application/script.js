@@ -116,6 +116,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   form.addEventListener("submit", function (e) {
+    const captchaResponse = grecaptcha.getResponse();
+    if(!captchaResponse.length > 0){
+      throw new Error("Captcha not complete.");
+    }
     if (!teamdeskSignature.value.trim()) {
       e.preventDefault();
       checkAgeAndShowModal();
