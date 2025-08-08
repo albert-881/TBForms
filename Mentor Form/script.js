@@ -9,12 +9,32 @@ document.addEventListener("DOMContentLoaded", function () {
   const hiddenSignatureInput = document.getElementById("f_67469619_ID0E4F");
   const hiddenDateInput = document.getElementById("f_67469620_ID0ENG");
 
+  const nextBtn = document.querySelector('button[onclick="nextStep()"]');
+  const prevBtn = document.querySelector('button[onclick="prevStep()"]');
+
   function showStep(step) {
     steps.forEach((s, i) => s.classList.toggle('active', i === step));
     progressItems.forEach((p, i) => p.classList.toggle('active', i <= step));
+    updateButtonState();
   }
 
-  // Validation for current step's required fields including radio groups
+  // Change NEXT button to SUBMIT on last step
+  function updateButtonState() {
+    if (current === steps.length - 1) {
+      nextBtn.textContent = "SUBMIT";
+      nextBtn.onclick = function () {
+        if (!validateCurrentStep()) return;
+        showSignatureModal();
+      };
+    } else {
+      nextBtn.textContent = "NEXT";
+      nextBtn.onclick = function () {
+        nextStep();
+      };
+    }
+  }
+
+  // Validation for current step's required fields
   function validateCurrentStep() {
     const currentStep = steps[current];
     const requiredFields = currentStep.querySelectorAll('input[required], textarea[required]');
@@ -51,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.nextStep = function () {
     if (!validateCurrentStep()) return;
-
     if (current < steps.length - 1) {
       current++;
       showStep(current);
@@ -64,8 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
       showStep(current);
     }
   };
-
-  showStep(current);
 
   form.addEventListener("submit", function (e) {
     // Prevent form submission if signature or date are missing
@@ -104,4 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.alignItems = "center";
     modal.style.zIndex = "9999";
   }
+
+  // Initial load
+  showStep(current);
 });
