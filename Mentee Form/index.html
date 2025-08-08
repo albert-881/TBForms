@@ -159,17 +159,15 @@
       <input id="f_67469649_ID0EWAAC" name="f_67469649" type="text" maxlength="40" style="display:none;">
       <input id="f_67469650_ID0EGBAC" name="f_67469650" type="date" maxlength="40" style="display:none;">
     </div>
-    <div class="button-wrapper">
-      <input type="submit" value="Submit">
-    </div>
     
   </div>
 
   
   <div style="margin-top: 20px;">
-    <button type="button" onclick="prevStep()">PREVIOUS</button>
-    <button type="button" onclick="nextStep()">NEXT</button>
+    <button type="button" onclick="prevStep()" id="prevBtn" style="display:none;">PREVIOUS</button>
+    <button type="button" onclick="handleNextOrSubmit()" id="nextSubmitBtn">NEXT</button>
   </div>
+  
 </form>
 
 
