@@ -288,7 +288,7 @@ async function nextStep() {
 
     try {
       // ✅ Send CAPTCHA token to AWS Lambda
-      const verifyResponse = await fetch("https://YOUR_API_GATEWAY_URL/dev/verify-captcha", {
+      const verifyResponse = await fetch("https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
