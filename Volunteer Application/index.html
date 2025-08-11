@@ -253,78 +253,78 @@
 <script>
   const steps = document.querySelectorAll('.step-section');
   const progressItems = document.querySelectorAll('.progressbar li');
+  const nextBtn = document.getElementById('nextBtn'); // make sure you have this element
+  const form = document.querySelector("form[name='frm']");
+  const teamdeskSignature = document.getElementById("f_67361887_ID0EKIAC"); // update ID if needed
+
   let current = 0;
 
   function showStep(index) {
-  steps.forEach((step, i) => step.classList.toggle('active', i === index));
-  progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
-  currentStepIndex = index;
-  //validateStepFields();
-  //updateButtons();
+    steps.forEach((step, i) => step.classList.toggle('active', i === index));
+    progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
+    current = index;
 
-  // Disable button if we're on last step and CAPTCHA hasn't been solved yet
-  if (currentStepIndex === steps.length - 1) {
-    const captchaResponse = grecaptcha.getResponse();
-    nextBtn.disabled = !captchaResponse.length;
-  }
-}
-
-
-async function nextStep() {
-  console.log("Entered nextStep function");
-  const inputs = steps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
-  const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
-
-  if (!stepIsValid) {
-    form.reportValidity();
-    return;
+    // Disable next button if on last step and CAPTCHA not solved
+    if (current === steps.length - 1) {
+      const captchaResponse = grecaptcha.getResponse();
+      nextBtn.disabled = !captchaResponse.length;
+    } else {
+      nextBtn.disabled = false; // enable on other steps
+    }
   }
 
-  // Last step logic
-  if (currentStep === formSteps.length - 1) {
-    const captchaResponse = grecaptcha.getResponse();
-    if (!captchaResponse.length) {
-      alert("Please complete the CAPTCHA.");
+  async function nextStep() {
+    console.log("Entered nextStep function");
+    const inputs = steps[current].querySelectorAll("input[required], select[required], textarea[required]");
+    const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
+
+    if (!stepIsValid) {
+      form.reportValidity();
       return;
     }
 
-    try {
-      // ✅ Send CAPTCHA token to AWS Lambda
-      const verifyResponse = await fetch("https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ token: captchaResponse })
-      });
-
-      const verifyData = await verifyResponse.json();
-
-      if (verifyData.success) {
-        console.log("✅ CAPTCHA verification passed:", verifyData);
-
-        // Signature modal logic
-        if (!teamdeskSignature.value.trim()) {
-          checkAgeAndShowModal();
-        } else {
-          confirmSignature();
-        }
-
-      } else {
-        console.error("❌ CAPTCHA verification failed:", verifyData);
-        alert("CAPTCHA verification failed. Please try again.");
+    // Last step logic
+    if (current === steps.length - 1) {
+      const captchaResponse = grecaptcha.getResponse();
+      if (!captchaResponse.length) {
+        alert("Please complete the CAPTCHA.");
+        return;
       }
-    } catch (err) {
-      console.error("Error verifying CAPTCHA:", err);
+
+      try {
+        const verifyResponse = await fetch("https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ token: captchaResponse })
+        });
+
+        const verifyData = await verifyResponse.json();
+
+        if (verifyData.success) {
+          console.log("✅ CAPTCHA verification passed:", verifyData);
+
+          // Signature modal logic (make sure these functions and variables exist)
+          if (!teamdeskSignature.value.trim()) {
+            checkAgeAndShowModal();
+          } else {
+            confirmSignature();
+          }
+
+        } else {
+          console.error("❌ CAPTCHA verification failed:", verifyData);
+          alert("CAPTCHA verification failed. Please try again.");
+        }
+      } catch (err) {
+        console.error("Error verifying CAPTCHA:", err);
+      }
+
+    } else {
+      current++;
+      showStep(current);
     }
-
-  } else {
-    currentStep++;
-    showStep(currentStep);
   }
-}
-
-
 
   function prevStep() {
     if (current > 0) {
