@@ -258,7 +258,7 @@
   steps.forEach((step, i) => step.classList.toggle('active', i === index));
   progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
   currentStepIndex = index;
-  validateStepFields();
+  //validateStepFields();
   updateButtons();
 
   // Disable button if we're on last step and CAPTCHA hasn't been solved yet
