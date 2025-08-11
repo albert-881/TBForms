@@ -90,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   window.nextStep = function () {
+    console.log("nextStep() called, current step:", currentStepIndex);
     const valid = validateStepFields();
     if (!valid) return;
 
