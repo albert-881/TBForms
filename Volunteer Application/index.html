@@ -269,7 +269,7 @@
 }
 
 
-  function nextStep() {
+async function nextStep() {
   const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
   const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
 
@@ -278,7 +278,7 @@
     return;
   }
 
-  // Signature step - validate CAPTCHA before calling confirm
+  // Last step logic
   if (currentStep === formSteps.length - 1) {
     const captchaResponse = grecaptcha.getResponse();
     if (!captchaResponse.length) {
@@ -286,16 +286,42 @@
       return;
     }
 
-    if (!teamdeskSignature.value.trim()) {
-      checkAgeAndShowModal(); // show signature modal
-    } else {
-      confirmSignature(); // final submission via fetch
+    try {
+      // ✅ Send CAPTCHA token to AWS Lambda
+      const verifyResponse = await fetch("https://YOUR_API_GATEWAY_URL/dev/verify-captcha", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ token: captchaResponse })
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (verifyData.success) {
+        console.log("✅ CAPTCHA verification passed:", verifyData);
+
+        // Signature modal logic
+        if (!teamdeskSignature.value.trim()) {
+          checkAgeAndShowModal();
+        } else {
+          confirmSignature();
+        }
+
+      } else {
+        console.error("❌ CAPTCHA verification failed:", verifyData);
+        alert("CAPTCHA verification failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error verifying CAPTCHA:", err);
     }
+
   } else {
     currentStep++;
     showStep(currentStep);
   }
 }
+
 
 
   function prevStep() {
