@@ -258,6 +258,34 @@
   const teamdeskSignature = document.getElementById("f_67361887_ID0EKIAC"); // update ID if needed
 
   let current = 0;
+  function checkAgeAndShowModal() {
+  // Example: check date of birth, show a modal if needed
+  const dobInput = document.getElementById('f_67289239_ID0ENC');
+  const dobValue = dobInput ? dobInput.value : null;
+
+  if (!dobValue) {
+    alert("Please enter your Date of Birth.");
+    return;
+  }
+
+  const today = new Date();
+  const dobDate = new Date(dobValue);
+  let age = today.getFullYear() - dobDate.getFullYear();
+  const monthDiff = today.getMonth() - dobDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
+    age--;
+  }
+
+  if (age < 18) {
+    // Show signature modal or guardian signature fields if applicable
+    alert("You are under 18, guardian signature required.");
+    // Implement your modal logic here
+  } else {
+    // Proceed normally
+    confirmSignature();
+  }
+}
 
   function showStep(index) {
     steps.forEach((step, i) => step.classList.toggle('active', i === index));
