@@ -270,6 +270,7 @@
 
 
 async function nextStep() {
+  console.log("nextStep called, currentStep:", currentStep);
   const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
   const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
 
