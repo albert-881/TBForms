@@ -223,4 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   showStep(currentStepIndex);
+  document.getElementById("nextBtn").addEventListener("click", window.nextStep);
+document.getElementById("prevBtn").addEventListener("click", window.prevStep);
+
 });
