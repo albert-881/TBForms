@@ -12,7 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const steps = document.querySelectorAll('.step-section');
   const progressItems = document.querySelectorAll('.progressbar li');
   const nextBtn = document.getElementById('nextBtn');
-  const prevBtn = document.querySelector('button[onclick="prevStep()"]');
+  const prevBtn = document.getElementById('prevBtn');
+
 
   let currentStepIndex = 0;
 
