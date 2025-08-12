@@ -249,64 +249,6 @@
 
 
 
-<script>
-  const steps = document.querySelectorAll('.step-section');
-  const progressItems = document.querySelectorAll('.progressbar li');
-  let current = 0;
-
-  function showStep(index) {
-  steps.forEach((step, i) => step.classList.toggle('active', i === index));
-  progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
-  currentStepIndex = index;
-  validateStepFields();
-  updateButtons();
-
-  // Disable button if we're on last step and CAPTCHA hasn't been solved yet
-  if (currentStepIndex === steps.length - 1) {
-    const captchaResponse = grecaptcha.getResponse();
-    nextBtn.disabled = !captchaResponse.length;
-  }
-}
-
-
-  function nextStep() {
-  const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
-  const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
-
-  if (!stepIsValid) {
-    form.reportValidity();
-    return;
-  }
-
-  // Signature step - validate CAPTCHA before calling confirm
-  if (currentStep === formSteps.length - 1) {
-    const captchaResponse = grecaptcha.getResponse();
-    if (!captchaResponse.length) {
-      alert("Please complete the CAPTCHA.");
-      return;
-    }
-
-    if (!teamdeskSignature.value.trim()) {
-      checkAgeAndShowModal(); // show signature modal
-    } else {
-      confirmSignature(); // final submission via fetch
-    }
-  } else {
-    currentStep++;
-    showStep(currentStep);
-  }
-}
-
-
-  function prevStep() {
-    if (current > 0) {
-      current--;
-      showStep(current);
-    }
-  }
-
-  showStep(current);
-</script>
 
 
 <div id="signatureModal" style="display: none;">
