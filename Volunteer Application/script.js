@@ -89,6 +89,20 @@ document.addEventListener("DOMContentLoaded", function () {
     nextBtn.textContent = currentStepIndex === steps.length - 1 ? 'Submit' : 'NEXT';
   }
 
+  window.nextStep = function () {
+    const valid = validateStepFields();
+    if (!valid) return;
+
+    if (currentStepIndex < steps.length - 1) {
+      showStep(currentStepIndex + 1);
+    } else {
+      if (!teamdeskSignature.value.trim()) {
+        checkAgeAndShowModal();
+      } else {
+        form.submit();
+      }
+    }
+  };
 
   window.prevStep = function () {
     if (currentStepIndex > 0) {

@@ -233,8 +233,7 @@
 
   <div style="margin-top: 20px;">
     <button type="button" onclick="prevStep()">PREVIOUS</button>
-    <button type="button" id="nextBtn" disabled onclick="console.log('Next button clicked!'); nextStep();">NEXT</button>
-
+    <button type="button" id="nextBtn" disabled onclick="nextStep()">NEXT</button>
 
     
     <div id="next-disabled-message" style="margin-top: 10px; color: #b91c1c; font-size: 0.9rem; display: none;">
@@ -253,106 +252,51 @@
 <script>
   const steps = document.querySelectorAll('.step-section');
   const progressItems = document.querySelectorAll('.progressbar li');
-  const nextBtn = document.getElementById('nextBtn'); // make sure you have this element
-  const form = document.querySelector("form[name='frm']");
-  const teamdeskSignature = document.getElementById("f_67361887_ID0EKIAC"); // update ID if needed
-
   let current = 0;
-  function checkAgeAndShowModal() {
-  // Example: check date of birth, show a modal if needed
-  const dobInput = document.getElementById('f_67289239_ID0ENC');
-  const dobValue = dobInput ? dobInput.value : null;
 
-  if (!dobValue) {
-    alert("Please enter your Date of Birth.");
-    return;
-  }
+  function showStep(index) {
+  steps.forEach((step, i) => step.classList.toggle('active', i === index));
+  progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
+  currentStepIndex = index;
+  validateStepFields();
+  updateButtons();
 
-  const today = new Date();
-  const dobDate = new Date(dobValue);
-  let age = today.getFullYear() - dobDate.getFullYear();
-  const monthDiff = today.getMonth() - dobDate.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) {
-    age--;
-  }
-
-  if (age < 18) {
-    // Show signature modal or guardian signature fields if applicable
-    alert("You are under 18, guardian signature required.");
-    // Implement your modal logic here
-  } else {
-    // Proceed normally
-    confirmSignature();
+  // Disable button if we're on last step and CAPTCHA hasn't been solved yet
+  if (currentStepIndex === steps.length - 1) {
+    const captchaResponse = grecaptcha.getResponse();
+    nextBtn.disabled = !captchaResponse.length;
   }
 }
 
-  function showStep(index) {
-    steps.forEach((step, i) => step.classList.toggle('active', i === index));
-    progressItems.forEach((p, i) => p.classList.toggle('active', i <= index));
-    current = index;
 
-    // Disable next button if on last step and CAPTCHA not solved
-    if (current === steps.length - 1) {
-      const captchaResponse = grecaptcha.getResponse();
-      nextBtn.disabled = !captchaResponse.length;
-    } else {
-      nextBtn.disabled = false; // enable on other steps
-    }
+  function nextStep() {
+  const inputs = formSteps[currentStep].querySelectorAll("input[required], select[required], textarea[required]");
+  const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
+
+  if (!stepIsValid) {
+    form.reportValidity();
+    return;
   }
 
-  async function nextStep() {
-    console.log("Entered nextStep function");
-    const inputs = steps[current].querySelectorAll("input[required], select[required], textarea[required]");
-    const stepIsValid = Array.from(inputs).every((input) => input.checkValidity());
-
-    if (!stepIsValid) {
-      form.reportValidity();
+  // Signature step - validate CAPTCHA before calling confirm
+  if (currentStep === formSteps.length - 1) {
+    const captchaResponse = grecaptcha.getResponse();
+    if (!captchaResponse.length) {
+      alert("Please complete the CAPTCHA.");
       return;
     }
 
-    // Last step logic
-    if (current === steps.length - 1) {
-      const captchaResponse = grecaptcha.getResponse();
-      if (!captchaResponse.length) {
-        alert("Please complete the CAPTCHA.");
-        return;
-      }
-
-      try {
-        const verifyResponse = await fetch("https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ token: captchaResponse })
-        });
-
-        const verifyData = await verifyResponse.json();
-
-        if (verifyData.success) {
-          console.log("✅ CAPTCHA verification passed:", verifyData);
-
-          // Signature modal logic (make sure these functions and variables exist)
-          if (!teamdeskSignature.value.trim()) {
-            checkAgeAndShowModal();
-          } else {
-            confirmSignature();
-          }
-
-        } else {
-          console.error("❌ CAPTCHA verification failed:", verifyData);
-          alert("CAPTCHA verification failed. Please try again.");
-        }
-      } catch (err) {
-        console.error("Error verifying CAPTCHA:", err);
-      }
-
+    if (!teamdeskSignature.value.trim()) {
+      checkAgeAndShowModal(); // show signature modal
     } else {
-      current++;
-      showStep(current);
+      confirmSignature(); // final submission via fetch
     }
+  } else {
+    currentStep++;
+    showStep(currentStep);
   }
+}
+
 
   function prevStep() {
     if (current > 0) {
