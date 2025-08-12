@@ -38,13 +38,33 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current === steps.length - 1) {
       nextBtn.textContent = "SUBMIT";
       nextBtn.disabled = true; // Disabled until CAPTCHA is done
-      nextBtn.onclick = function () {
+      nextBtn.onclick = async function () {
         if (!validateCurrentStep()) return;
         if (!isCaptchaCompleted()) {
           alert("Please complete the CAPTCHA before submitting.");
           return;
         }
-        showSignatureModal();
+        // Validate captcha with Lambda before showing signature modal
+        const token = grecaptcha.getResponse();
+        try {
+          const res = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showSignatureModal();
+          } else {
+            alert("CAPTCHA verification failed. Please try again.");
+            grecaptcha.reset();
+            nextBtn.disabled = false;
+          }
+        } catch (e) {
+          alert("Error verifying CAPTCHA. Please try again.");
+          grecaptcha.reset();
+          nextBtn.disabled = false;
+        }
       };
     } else {
       nextBtn.textContent = "NEXT";
@@ -110,11 +130,12 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   form.addEventListener("submit", function (e) {
-    e.preventDefault(); // prevent native submit
+    // Prevent default submission — we'll submit manually after signature
+    e.preventDefault();
     if (!hiddenSignatureInput.value || !hiddenDateInput.value) {
       showSignatureModal();
     } else {
-      sendFormData();
+      form.submit(); // Already signed, just submit
     }
   });
 
@@ -131,56 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modal.style.display = "none";
 
-    sendFormData();
+    form.submit(); // Submit form normally after signature
   };
-
-  async function sendFormData() {
-    // Collect form data into an object
-    const formData = new FormData(form);
-
-    // Add reCAPTCHA token to data
-    const captchaToken = grecaptcha.getResponse();
-    if (!captchaToken) {
-      alert("Please complete the CAPTCHA.");
-      return;
-    }
-    formData.append('g-recaptcha-response', captchaToken);
-
-    // Convert FormData to JSON object
-    const dataObj = {};
-    formData.forEach((value, key) => {
-      dataObj[key] = value;
-    });
-
-    try {
-      nextBtn.disabled = true;
-      nextBtn.textContent = "Submitting...";
-      const response = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataObj),
-      });
-
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-
-      const result = await response.json();
-
-      if (result.success) {
-        alert("Form submitted successfully!");
-        window.location.href = "https://albert-881.github.io/TBForms/Mentor%20Form/thankyou.html";
-      } else {
-        alert("Submission failed: " + (result.message || "Unknown error"));
-        grecaptcha.reset();
-        nextBtn.disabled = false;
-        nextBtn.textContent = "SUBMIT";
-      }
-    } catch (error) {
-      alert("Submission error: " + error.message);
-      grecaptcha.reset();
-      nextBtn.disabled = false;
-      nextBtn.textContent = "SUBMIT";
-    }
-  }
 
   function showSignatureModal() {
     modal.style.display = "flex";
