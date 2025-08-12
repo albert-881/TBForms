@@ -18,12 +18,10 @@ document.addEventListener("DOMContentLoaded", function () {
     updateButtonState();
   }
 
-  // Check if reCAPTCHA is completed
   function isCaptchaCompleted() {
     return grecaptcha && grecaptcha.getResponse().length > 0;
   }
 
-  // Callbacks for reCAPTCHA widget
   window.enableSubmitButton = function () {
     if (current === steps.length - 1) {
       nextBtn.disabled = false;
@@ -36,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // Change NEXT button to SUBMIT on last step
   function updateButtonState() {
     if (current === steps.length - 1) {
       nextBtn.textContent = "SUBMIT";
@@ -58,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Validation for current step's required fields
   function validateCurrentStep() {
     const currentStep = steps[current];
     const requiredFields = currentStep.querySelectorAll('input[required], textarea[required]');
@@ -76,10 +72,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Check required radio groups explicitly
     const requiredRadioGroups = [
-      'f_67343722', // Primary Shift
-      'f_67343723', // Years of Clinical Experience
+      'f_67343722',
+      'f_67343723',
     ];
 
     for (const groupName of requiredRadioGroups) {
@@ -98,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current < steps.length - 1) {
       current++;
       showStep(current);
-      // Reset CAPTCHA if we move away from last step (optional)
       if (current !== steps.length - 1 && grecaptcha) {
         grecaptcha.reset();
       }
@@ -116,10 +110,11 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   form.addEventListener("submit", function (e) {
-    // Prevent form submission if signature or date are missing
+    e.preventDefault(); // prevent native submit
     if (!hiddenSignatureInput.value || !hiddenDateInput.value) {
-      e.preventDefault();
       showSignatureModal();
+    } else {
+      sendFormData();
     }
   });
 
@@ -130,15 +125,62 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Fill hidden fields
     hiddenSignatureInput.value = signature;
     const today = new Date().toISOString().split('T')[0];
     hiddenDateInput.value = today;
 
-    // Hide modal and resubmit form
     modal.style.display = "none";
-    form.submit();
+
+    sendFormData();
   };
+
+  async function sendFormData() {
+    // Collect form data into an object
+    const formData = new FormData(form);
+
+    // Add reCAPTCHA token to data
+    const captchaToken = grecaptcha.getResponse();
+    if (!captchaToken) {
+      alert("Please complete the CAPTCHA.");
+      return;
+    }
+    formData.append('g-recaptcha-response', captchaToken);
+
+    // Convert FormData to JSON object
+    const dataObj = {};
+    formData.forEach((value, key) => {
+      dataObj[key] = value;
+    });
+
+    try {
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Submitting...";
+      const response = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj),
+      });
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Form submitted successfully!");
+        window.location.href = "https://albert-881.github.io/TBForms/Mentor%20Form/thankyou.html";
+      } else {
+        alert("Submission failed: " + (result.message || "Unknown error"));
+        grecaptcha.reset();
+        nextBtn.disabled = false;
+        nextBtn.textContent = "SUBMIT";
+      }
+    } catch (error) {
+      alert("Submission error: " + error.message);
+      grecaptcha.reset();
+      nextBtn.disabled = false;
+      nextBtn.textContent = "SUBMIT";
+    }
+  }
 
   function showSignatureModal() {
     modal.style.display = "flex";
@@ -153,6 +195,5 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.zIndex = "9999";
   }
 
-  // Initial load
   showStep(current);
 });
