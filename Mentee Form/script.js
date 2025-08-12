@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("form[name='frm']");
   const modal = document.getElementById("signatureModal");
   const typedSignature = document.getElementById("typed-signature");
+  const signatureDateInput = document.getElementById("signature-date");
   const hiddenSignatureInput = document.getElementById("f_67469649_ID0EWAAC");
   const hiddenDateInput = document.getElementById("f_67469650_ID0EGBAC");
 
@@ -16,15 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     steps.forEach((s, i) => s.classList.toggle('active', i === step));
     progressItems.forEach((p, i) => p.classList.toggle('active', i <= step));
 
-    // Show or hide PREVIOUS button
     prevBtn.style.display = step === 0 ? "none" : "inline-block";
 
-    // Change NEXT button text to SUBMIT on last step
-    if (step === steps.length - 1) {
-      nextSubmitBtn.textContent = "SUBMIT";
-    } else {
-      nextSubmitBtn.textContent = "NEXT";
-    }
+    nextSubmitBtn.textContent = step === steps.length - 1 ? "SUBMIT" : "NEXT";
   }
 
   function validateStep() {
@@ -36,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Please answer all required questions.");
           return false;
         }
-      } else if (input.hasAttribute("required") && !input.value) {
+      } else if (input.hasAttribute("required") && !input.value.trim()) {
         alert("Please complete all required fields before continuing.");
         return false;
       }
@@ -59,15 +54,51 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  window.handleNextOrSubmit = function () {
+  // Check if captcha completed
+  function isCaptchaCompleted() {
+    return grecaptcha && grecaptcha.getResponse().length > 0;
+  }
+
+  // Verify CAPTCHA token by sending to your Lambda
+  async function verifyCaptcha(token) {
+    try {
+      const res = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      if (!res.ok) throw new Error(`Captcha verification failed: ${res.status}`);
+      const data = await res.json();
+      return data.success;
+    } catch (err) {
+      alert("Captcha verification error: " + err.message);
+      return false;
+    }
+  }
+
+  // This replaces your old handleNextOrSubmit, integrates captcha verify before showing signature modal
+  window.handleNextOrSubmit = async function () {
     if (!validateStep()) return;
 
     if (current === steps.length - 1) {
-      // Last step, submit form if signature filled, else show signature modal
+      // Check CAPTCHA before showing signature modal
+      if (!isCaptchaCompleted()) {
+        alert("Please complete the CAPTCHA before submitting.");
+        return;
+      }
+      const captchaToken = grecaptcha.getResponse();
+      const verified = await verifyCaptcha(captchaToken);
+      if (!verified) {
+        grecaptcha.reset();
+        alert("Captcha verification failed. Please try again.");
+        return;
+      }
+
+      // If signature info missing, show modal, else submit directly
       if (!hiddenSignatureInput.value || !hiddenDateInput.value) {
         showSignatureModal();
       } else {
-        form.submit();
+        await sendFormData();
       }
     } else {
       current++;
@@ -76,26 +107,82 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   form.addEventListener("submit", function (e) {
+    e.preventDefault(); // Prevent default submit
+
+    // If signature missing, show modal
     if (!hiddenSignatureInput.value || !hiddenDateInput.value) {
-      e.preventDefault();
       showSignatureModal();
+    } else {
+      sendFormData();
     }
   });
 
   window.confirmSignature = function () {
     const signature = typedSignature.value.trim();
+    const signatureDate = signatureDateInput.value;
     if (!signature) {
       alert("Please type your full name to sign.");
       return;
     }
+    if (!signatureDate) {
+      alert("Please select the date.");
+      return;
+    }
 
     hiddenSignatureInput.value = signature;
-    const today = new Date().toISOString().split('T')[0];
-    hiddenDateInput.value = today;
+    hiddenDateInput.value = signatureDate;
 
     modal.style.display = "none";
-    form.submit();
+
+    sendFormData();
   };
+
+  async function sendFormData() {
+    const formData = new FormData(form);
+
+    // Append captcha token
+    const captchaToken = grecaptcha.getResponse();
+    if (!captchaToken) {
+      alert("Please complete the CAPTCHA.");
+      return;
+    }
+    formData.append('g-recaptcha-response', captchaToken);
+
+    const dataObj = {};
+    formData.forEach((value, key) => {
+      dataObj[key] = value;
+    });
+
+    try {
+      nextSubmitBtn.disabled = true;
+      nextSubmitBtn.textContent = "Submitting...";
+
+      const response = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataObj),
+      });
+
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Form submitted successfully!");
+        window.location.href = "https://albert-881.github.io/TBForms/Mentee%20Form/thankyou.html";
+      } else {
+        alert("Submission failed: " + (result.message || "Unknown error"));
+        grecaptcha.reset();
+        nextSubmitBtn.disabled = false;
+        nextSubmitBtn.textContent = "SUBMIT";
+      }
+    } catch (error) {
+      alert("Submission error: " + error.message);
+      grecaptcha.reset();
+      nextSubmitBtn.disabled = false;
+      nextSubmitBtn.textContent = "SUBMIT";
+    }
+  }
 
   function showSignatureModal() {
     modal.style.display = "flex";
