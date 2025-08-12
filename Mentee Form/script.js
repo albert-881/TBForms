@@ -12,11 +12,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const prevBtn = document.getElementById("prevBtn");
   const nextSubmitBtn = document.getElementById("nextSubmitBtn");
 
+  function enableSubmitButton() {
+    if (current === steps.length - 1) {
+      nextSubmitBtn.disabled = false;
+    }
+  }
+
+  function disableSubmitButton() {
+    if (current === steps.length - 1) {
+      nextSubmitBtn.disabled = true;
+    }
+  }
+
   function showStep(step) {
     steps.forEach((s, i) => s.classList.toggle('active', i === step));
     progressItems.forEach((p, i) => p.classList.toggle('active', i <= step));
+
     prevBtn.style.display = step === 0 ? "none" : "inline-block";
-    nextSubmitBtn.textContent = step === steps.length - 1 ? "SUBMIT" : "NEXT";
+
+    if (step === steps.length - 1) {
+      nextSubmitBtn.textContent = "SUBMIT";
+      nextSubmitBtn.disabled = true; // disable initially
+    } else {
+      nextSubmitBtn.textContent = "NEXT";
+      nextSubmitBtn.disabled = false;
+    }
   }
 
   function validateStep() {
@@ -41,6 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current < steps.length - 1) {
       current++;
       showStep(current);
+      grecaptcha.reset();
+      disableSubmitButton();
     }
   };
 
@@ -48,6 +70,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current > 0) {
       current--;
       showStep(current);
+      grecaptcha.reset();
+      disableSubmitButton();
     }
   };
 
@@ -55,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!validateStep()) return;
 
     if (current === steps.length - 1) {
-      // On last step, check signature then verify captcha and submit
+      // Last step, check signature then verify captcha and submit
       if (!hiddenSignatureInput.value || !hiddenDateInput.value) {
         showSignatureModal();
       } else {
@@ -64,6 +88,8 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       current++;
       showStep(current);
+      grecaptcha.reset();
+      disableSubmitButton();
     }
   };
 
@@ -101,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function () {
       nextSubmitBtn.disabled = true;
       nextSubmitBtn.textContent = "Verifying CAPTCHA...";
 
-      // Verify captcha token with your Lambda
       const response = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
 
       if (result.success) {
-        // CAPTCHA verified, submit actual form to TeamDesk
         nextSubmitBtn.textContent = "Submitting form...";
         form.submit();
       } else {
@@ -142,6 +166,10 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.style.alignItems = "center";
     modal.style.zIndex = "9999";
   }
+
+  // Expose enable/disable so Google can call them on captcha callbacks
+  window.enableSubmitButton = enableSubmitButton;
+  window.disableSubmitButton = disableSubmitButton;
 
   showStep(current);
 });
