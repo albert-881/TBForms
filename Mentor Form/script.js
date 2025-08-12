@@ -18,16 +18,40 @@ document.addEventListener("DOMContentLoaded", function () {
     updateButtonState();
   }
 
+  // Check if reCAPTCHA is completed
+  function isCaptchaCompleted() {
+    return grecaptcha && grecaptcha.getResponse().length > 0;
+  }
+
+  // Callbacks for reCAPTCHA widget
+  window.enableSubmitButton = function () {
+    if (current === steps.length - 1) {
+      nextBtn.disabled = false;
+    }
+  };
+
+  window.disableSubmitButton = function () {
+    if (current === steps.length - 1) {
+      nextBtn.disabled = true;
+    }
+  };
+
   // Change NEXT button to SUBMIT on last step
   function updateButtonState() {
     if (current === steps.length - 1) {
       nextBtn.textContent = "SUBMIT";
+      nextBtn.disabled = true; // Disabled until CAPTCHA is done
       nextBtn.onclick = function () {
         if (!validateCurrentStep()) return;
+        if (!isCaptchaCompleted()) {
+          alert("Please complete the CAPTCHA before submitting.");
+          return;
+        }
         showSignatureModal();
       };
     } else {
       nextBtn.textContent = "NEXT";
+      nextBtn.disabled = false;
       nextBtn.onclick = function () {
         nextStep();
       };
@@ -74,6 +98,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current < steps.length - 1) {
       current++;
       showStep(current);
+      // Reset CAPTCHA if we move away from last step (optional)
+      if (current !== steps.length - 1 && grecaptcha) {
+        grecaptcha.reset();
+      }
     }
   };
 
@@ -81,6 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (current > 0) {
       current--;
       showStep(current);
+      if (current !== steps.length - 1 && grecaptcha) {
+        grecaptcha.reset();
+      }
     }
   };
 
