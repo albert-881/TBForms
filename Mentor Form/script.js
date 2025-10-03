@@ -35,6 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   function updateButtonState() {
+    // Show/hide PREVIOUS button
+    prevBtn.style.display = current === 0 ? "none" : "inline-block";
+  
     if (current === steps.length - 1) {
       nextBtn.textContent = "SUBMIT";
       nextBtn.disabled = true; // Disabled until CAPTCHA is done
@@ -47,11 +50,14 @@ document.addEventListener("DOMContentLoaded", function () {
         // Validate captcha with Lambda before showing signature modal
         const token = grecaptcha.getResponse();
         try {
-          const res = await fetch('https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token }),
-          });
+          const res = await fetch(
+            "https://zrsbahc7da.execute-api.us-east-2.amazonaws.com/default/captchaValidation",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token }),
+            }
+          );
           const data = await res.json();
           if (res.ok && data.success) {
             showSignatureModal();
@@ -74,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
       };
     }
   }
+  
 
   function validateCurrentStep() {
     const currentStep = steps[current];
